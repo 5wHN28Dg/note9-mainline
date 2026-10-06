@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Hashim <109148083+5wHN28Dg@users.noreply.github.com>
+Date: Tue, 6 Oct 2026 22:49:19 +0300
+Subject: [PATCH 0/2] Add initial support for Samsung Galaxy Note9 (crownlte)
+
+This adds an initial device tree for the Exynos 9810 based Samsung Galaxy
+Note9 (SM-N960F), a sibling of the already supported Galaxy S9 (starlte):
+simple-framebuffer, hardware keys, RAM below 4 GiB and the memory regions
+used by the stock bootloader and firmware.
+
+NOT TESTED ON HARDWARE YET. Not for submission in this state.
+
+Tool use (Documentation/process/generated-content.rst): both patches were
+written by an AI coding agent (Claude Opus 5.5, Anthropic) from the
+downstream LineageOS kernel (android_kernel_samsung_universal9810,
+lineage-17.1, 5a2dd7d6f3a0) and the upstream starlte DTS, and checked with
+dtc W=1, dtbs_check and checkpatch --strict.
+
+Hashim (2):
+  dt-bindings: arm: samsung: samsung-boards: Add Samsung Galaxy Note9
+  arm64: dts: exynos: Add initial support for Samsung Galaxy Note9
+
+ .../bindings/arm/samsung/samsung-boards.yaml  |   1 +
+ arch/arm64/boot/dts/exynos/Makefile           |   1 +
+ .../boot/dts/exynos/exynos9810-crownlte.dts   | 182 ++++++++++++++++++
+ 3 files changed, 184 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/exynos/exynos9810-crownlte.dts
+
+
+base-commit: a90ee4305c4a5df72c11b31dacfdc76e00fcf78a
