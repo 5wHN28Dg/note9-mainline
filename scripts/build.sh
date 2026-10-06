@@ -12,12 +12,14 @@ export ARCH=arm64 CROSS_COMPILE=${CROSS_COMPILE:-aarch64-linux-gnu-}
 mk() { make -s -C "$tree" O="$out" -j"$(nproc)" "$@"; }
 
 # Tiny init, built against the kernel's own nolibc (no external binaries).
-mkdir -p "$out/initramfs/sysroot"
-make -s -C "$tree/tools/include/nolibc" OUTPUT="$out/initramfs/sysroot/" \
-	headers_standalone >/dev/null
+# (Not "headers_standalone": that builds inside the source tree.)
+sysroot=$out/initramfs/sysroot
+mkdir -p "$sysroot"
+make -s -C "$tree/tools/include/nolibc" OUTPUT="$sysroot/" headers
+mk headers_install INSTALL_HDR_PATH="$sysroot/sysroot"
 "${CROSS_COMPILE}gcc" -Wall -Wextra -Werror -Os -s -static -nostdlib \
 	-fno-asynchronous-unwind-tables -fno-ident -nostdinc \
-	-I"$out/initramfs/sysroot/sysroot/include" -include nolibc.h \
+	-I"$sysroot/sysroot/include" -include nolibc.h \
 	-o "$out/initramfs/init" "$repo/kernel/init.c" -lgcc
 cat > "$out/initramfs/list" <<LIST
 dir /dev 0755 0 0
@@ -34,8 +36,16 @@ mk olddefconfig
 # Every fragment option must survive olddefconfig, or the build is not what we think.
 fail=0
 while IFS= read -r line; do
-	case $line in CONFIG_*) ;; "# CONFIG_"*" is not set") ;; *) continue ;; esac
-	grep -qxF "$line" "$out/.config" || { echo "fragment option lost: $line" >&2; fail=1; }
+	case $line in
+	CONFIG_*)
+		grep -qxF "$line" "$out/.config" ||
+			{ echo "fragment option lost: $line" >&2; fail=1; } ;;
+	"# CONFIG_"*" is not set")
+		# Off, or absent because its dependencies are off: both fine.
+		sym=${line#\# }; sym=${sym%% *}
+		! grep -qE "^$sym=" "$out/.config" ||
+			{ echo "fragment option not disabled: $sym" >&2; fail=1; } ;;
+	esac
 done < "$repo/kernel/crownlte.config"
 [ "$fail" = 0 ]
 

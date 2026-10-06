@@ -39,15 +39,18 @@ for p in "${patches[@]}"; do
 		fail "checkpatch: $(basename "$p")"
 done
 
-echo "== 3. CHECK_DTBS=y exynos/exynos9810-crownlte.dtb"
+echo "== 3. W=1 CHECK_DTBS=y exynos/exynos9810-crownlte.dtb"
 log=$out/dtbs-check.log
-make -s -C "$tree" O="$out" CHECK_DTBS=y exynos/exynos9810-crownlte.dtb >"$log" 2>&1 ||
+# Force a rebuild: an up-to-date DTB would skip validation silently.
+rm -f "$out/arch/arm64/boot/dts/exynos/exynos9810-crownlte.dtb"
+make -s -C "$tree" O="$out" W=1 CHECK_DTBS=y exynos/exynos9810-crownlte.dtb >"$log" 2>&1 ||
 	fail "dtbs_check build exited non-zero"
 cat "$log"
-# Any finding naming the crownlte DTB/DTS or another touched file fails.
+# Any line naming the crownlte DTB/DTS or another touched file fails.
+# (Schema findings do not contain the word "warning", so match file names.)
 pattern='exynos9810-crownlte'
 for f in "${touched[@]}"; do pattern+="|$(basename "$f" | sed 's/[.]/[.]/g')"; done
-if grep -E -i "warning|error|fail" "$log" | grep -E "$pattern"; then
+if grep -E "$pattern" "$log"; then
 	fail "dtbs_check findings on files we touch"
 fi
 # dtc warnings from the W=1 build in build.sh, same rule.
@@ -63,7 +66,7 @@ if [ ${#bindings[@]} -gt 0 ]; then
 	make -s -C "$tree" O="$out/bindings" dt_binding_check \
 		DT_SCHEMA_FILES="$files" >"$blog" 2>&1 || fail "dt_binding_check exited non-zero"
 	cat "$blog"
-	if grep -E -i "warning|error" "$blog"; then
+	if grep -E -i "warning|error|$(IFS='|'; echo "${bindings[*]##*/}")" "$blog"; then
 		fail "dt_binding_check findings"
 	fi
 else

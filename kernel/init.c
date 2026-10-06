@@ -23,7 +23,7 @@ static const char *key_name(unsigned int code)
 	case 114: return "Volume Down";
 	case 115: return "Volume Up";
 	case 116: return "Power";
-	case 212: return "Camera (Bixby key)";
+	case 583: return "Bixby";	/* KEY_ASSISTANT */
 	default:  return "other key";
 	}
 }
