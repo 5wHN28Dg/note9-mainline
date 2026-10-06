@@ -44,7 +44,10 @@ while IFS= read -r line; do
 		# Off, or absent because its dependencies are off: both fine.
 		sym=${line#\# }; sym=${sym%% *}
 		! grep -qE "^$sym=" "$out/.config" ||
-			{ echo "fragment option not disabled: $sym" >&2; fail=1; } ;;
+			{ echo "fragment option not disabled: $sym" >&2; fail=1; }
+		# A renamed symbol would make this guard a silent no-op.
+		git -C "$tree" grep -qE "^(menu)?config ${sym#CONFIG_}\$" -- '*Kconfig*' ||
+			{ echo "fragment symbol does not exist in this kernel: $sym" >&2; fail=1; } ;;
 	esac
 done < "$repo/kernel/crownlte.config"
 [ "$fail" = 0 ]
@@ -53,7 +56,9 @@ mk Image
 ls -l "$out/arch/arm64/boot/Image"
 # Before the first patch lands there is no crownlte DTS yet. Once patches/
 # has a series, the DTB is mandatory.
-if ! compgen -G "$repo/patches/*.patch" >/dev/null; then
+# shellcheck source=scripts/series.sh
+. "$repo/scripts/series.sh"
+if [ ${#patches[@]} = 0 ]; then
 	echo "SKIP: patches/ is empty, no crownlte DTB to build yet"
 	exit 0
 fi

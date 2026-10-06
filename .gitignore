@@ -12,3 +12,6 @@ Image
 Image.gz
 *.dtb
 /out/
+*.lz4
+*.zip
+*.md5
