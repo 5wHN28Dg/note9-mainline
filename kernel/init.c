@@ -23,7 +23,7 @@ static const char *key_name(unsigned int code)
 	case 114: return "Volume Down";
 	case 115: return "Volume Up";
 	case 116: return "Power";
-	case 583: return "Bixby";	/* KEY_ASSISTANT, as mapped in our DTS */
+	case 583: return "Bixby";	/* KEY_ASSISTANT: patches/0002, docs/HARDWARE.md */
 	default:  return "other key";
 	}
 }
@@ -56,8 +56,8 @@ int main(void)
 
 	printf("\nnote9-mainline: init running. Press Power, Volume Up/Down, Bixby.\n"
 	       "To leave: hold Volume Down + Power; the moment the screen goes\n"
-	       "black, switch to Bixby + Volume Up + Power to reach recovery,\n"
-	       "then restore stock (docs/PROCEDURES.md).\n");
+	       "black, switch to Bixby + Volume Down + Power (download mode,\n"
+	       "then Volume Up) and restore stock (docs/PROCEDURES.md).\n");
 	if (mount("devtmpfs", "/dev", "devtmpfs", 0, NULL))
 		printf("note9-mainline: mounting devtmpfs failed\n");
 	for (i = 0; i < NR_INPUTS; i++)

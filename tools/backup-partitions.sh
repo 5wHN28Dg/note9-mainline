@@ -37,18 +37,26 @@ byname=$(sh 'ls -d /dev/block/platform/*/by-name' | head -n 1)
 	die "can't find the by-name directory (got '$byname')"
 
 base=$HOME/note9-backups
-dest=$base/$(date +%Y-%m-%d-%H%M)
+dest=$base/$(date +%Y-%m-%d-%H%M%S)
 [ ! -e "$dest" ] || die "$dest already exists"
 mkdir -p "$dest"
 cd "$dest"
 
 sh "ls -l $byname" > by-name.txt
-mapfile -t names < <(sh "ls $byname")
+list=$(sh "ls $byname") || die "listing $byname failed"
+mapfile -t names <<<"$list"
 [ ${#names[@]} -gt 0 ] || die "no partitions listed"
+# Check every name before reading anything.
+for n in "${names[@]}"; do
+	[[ $n =~ ^[A-Za-z0-9_]+$ ]] || die "unexpected partition name '$n'"
+done
+# The IMEI lives here: a backup without it is not a backup.
+for need in EFS BOOT RECOVERY; do
+	printf '%s\n' "${names[@]}" | grep -qx "$need" || die "$need not in the by-name list"
+done
 
 : > partition-sizes.txt
 for n in "${names[@]}"; do
-	[[ $n =~ ^[A-Za-z0-9_]+$ ]] || die "unexpected partition name '$n'"
 	if [[ ${n,,} =~ $SKIP_RE ]]; then
 		echo "skip  $n"
 		continue

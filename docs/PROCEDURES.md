@@ -25,15 +25,22 @@ Key combos (Note 9):
    **stop and tell me**.)
 2. Settings > About phone > Software information: write down **Build number**
    and **Baseband version**.
-3. If a Google account is on the phone, **remove it** (Settings > Accounts).
-   Otherwise the wipe in trip 2 leaves the phone FRP-locked to that account.
-4. Download mode (combo above). Read the screen: `OEM LOCK`, `KG STATE`,
+3. **Back up your personal data now** (photos, contacts, chats, 2FA codes,
+   notes): Smart Switch to the PC, or copy files over USB. Open a few files
+   from the copy to check it. Trip 2 wipes the phone, and the partition
+   backup in trip 3 does not include your data.
+4. **Remove the Google account and the Samsung account** (Settings >
+   Accounts), or at least turn off Find My Mobile's *Reactivation lock*.
+   Otherwise the wipe in trip 2 can leave the phone locked to that account.
+5. Download mode (combo above). Read the screen: `OEM LOCK`, `KG STATE`,
    `FRP LOCK`, and anything containing `RMM`.
-5. Still in download mode, save the partition table (reads only):
-   `heimdall download-pit --output ~/note9-backups/note9.pit --no-reboot`
-   (make the folder first: `mkdir -p ~/note9-backups`). Then
-   `heimdall print-pit --file ~/note9-backups/note9.pit > ~/note9-logs/pit.txt`.
-6. Leave download mode: forced restart (Volume Down + Power).
+6. Still in download mode, save the partition table (this only reads):
+   ```sh
+   mkdir -p ~/note9-backups ~/note9-logs
+   heimdall download-pit --output ~/note9-backups/note9.pit --no-reboot
+   heimdall print-pit --file ~/note9-backups/note9.pit > ~/note9-logs/pit.txt
+   ```
+7. Leave download mode: forced restart (Volume Down + Power).
 
 **You should see:** `KG STATE: Normal`. If it says `Prenormal` or `Checking`:
 **stop**. Keep the phone on Wi-Fi with a SIM for some days, then look again.
@@ -62,16 +69,21 @@ is on the phone (that can brick it). Re-locking is only safe on full stock.
 
 ## Trip 3: TWRP into RECOVERY, then back up (destructive only to RECOVERY)
 
-1. In a browser, download `twrp-3.7.0_9-0-crownlte.img` and its `.asc` from
-   https://twrp.me/samsung/samsunggalaxynote9.html into `~/note9-work/twrp/`.
-   Check it:
+1. In a browser, download `twrp-3.7.0_9-0-crownlte.img` from
+   https://twrp.me/samsung/samsunggalaxynote9.html into `~/note9-work/twrp/`
+   (the signature `.asc` and TeamWin's key `twrp-public.asc`, from
+   https://dl.twrp.me/public.asc, are already there). Check it:
    ```sh
    cd ~/note9-work/twrp
    sha256sum twrp-3.7.0_9-0-crownlte.img
    # must be 7ea8960e5c8df86f07c6d6b3f5b4ab6fa1c533cafd46cd4e2578d32867f154af
-   gpg --import twrp-public.asc     # TeamWin key 9570 7D42 307C 9D41 D09B F709 1D85 97D7 891A 43DF
+   gpg --import twrp-public.asc
    gpg --verify twrp-3.7.0_9-0-crownlte.img.asc twrp-3.7.0_9-0-crownlte.img
    ```
+   gpg must say **Good signature from "TeamWin <admin@teamw.in>"** with key
+   fingerprint `9570 7D42 307C 9D41 D09B F709 1D85 97D7 891A 43DF`. (A
+   "not certified with a trusted signature" warning is normal.) Anything
+   else: stop.
 2. Download mode, then from the repo folder:
    ```sh
    tools/flash-boot.sh recovery ~/note9-work/twrp/twrp-3.7.0_9-0-crownlte.img \
@@ -96,22 +108,30 @@ is on the phone (that can brick it). Re-locking is only safe on full stock.
 6. Copy the new `~/note9-backups/<date>` folder to a second drive and run
    `sha256sum -c SHA256SUMS` inside the copy. If you find the old EFS backup,
    copy it in as `~/note9-backups/old-efs/` too (keep it, don't use it).
-7. Reboot to Android from TWRP (Reboot > System). Check `*#06#` again.
+7. Reboot to Android from TWRP (Reboot > System; if it offers to install the
+   TWRP app, choose **Do not install**). Check `*#06#` again.
 
 **Undo:** to put stock recovery back, flash `recovery.img` from the stock
 firmware (step "Rescue" below) with `tools/flash-boot.sh recovery`.
-**Send back:** "done", plus the folder names. I read `~/note9-logs` myself.
+**Send back:** "done", plus the folder names. I read `~/note9-logs` myself
+(including a check that the backup has every partition in `pit.txt` that it
+should).
 
 ## After every mainline test: restore stock boot
 
 If mainline was flashed to BOOT: forced restart, then at once hold
-**Bixby + Volume Down + Power** for download mode, then:
+**Bixby + Volume Down + Power**, and press **Volume Up** at the warning
+(download mode). Then, with your backup folder's real name:
 
 ```sh
-B=~/note9-backups/<date>
-tools/flash-boot.sh boot $B/BOOT.img --reboot \
-  --expect-sha256 $(awk '$2 == "BOOT.img" {print $1}' $B/SHA256SUMS)
+B=~/note9-backups/2026-10-10-120000      # your folder
+tools/flash-boot.sh boot "$B/BOOT.img" --reboot \
+  --expect-sha256 "$(awk '$2 == "BOOT.img" {print $1}' "$B/SHA256SUMS")"
 ```
+
+If mainline was flashed to RECOVERY instead, a forced restart already starts
+Android normally. To get TWRP back later, repeat trip 3 step 2 (or flash
+`$B/RECOVERY.img` the same way as above, with `recovery`).
 
 The phone should start Android normally. Until this is done, don't charge it
 while off and don't leave it alone (frozen screen can burn into the AMOLED).
@@ -120,6 +140,6 @@ while off and don't leave it alone (frozen screen can burn into the AMOLED).
 
 Flash full official stock firmware for SM-N960F (Iraq: CSC `MID`, inside the
 `OXM` package) from Samsung's servers, with **HOME_CSC, never CSC** (CSC wipes
-data). Never repartition, never flash a PIT, never erase NAND. Don't take OTA
+data), using Odin or `odin4`. Never repartition, never flash a PIT, never erase NAND. Don't take OTA
 updates during the project. Single images (boot.img, recovery.img) come from
 the AP tar: `tar xf AP_*.tar.md5 boot.img.lz4 && lz4 -d boot.img.lz4`.

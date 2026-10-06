@@ -37,9 +37,14 @@ echo "== 2. checkpatch --strict --no-signoff"
 # MAINTAINERS entry would name a maintainer, which is the owner's decision.
 # The existing Exynos DTS entry already covers arch/arm64/boot/dts/exynos/.
 for p in "${series[@]}"; do
-	(cd "$tree" && scripts/checkpatch.pl --strict --no-signoff \
-		--ignore FILE_PATH_CHANGES --show-types -q "$p") ||
+	cp_log=$(cd "$tree" && scripts/checkpatch.pl --strict --no-signoff \
+		--ignore FILE_PATH_CHANGES --show-types -q "$p" 2>&1) ||
 		fail "checkpatch: $(basename "$p")"
+	[ -z "$cp_log" ] || echo "$cp_log"
+	# A crashing helper (e.g. spdxcheck.py without python3-ply) only
+	# prints a traceback and checkpatch carries on: treat it as a failure.
+	! grep -q 'Traceback' <<<"$cp_log" ||
+		fail "checkpatch helper crashed on $(basename "$p")"
 done
 
 echo "== 3. W=1 CHECK_DTBS=y exynos/exynos9810-crownlte.dtb"

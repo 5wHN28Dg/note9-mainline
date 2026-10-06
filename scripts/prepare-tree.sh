@@ -18,6 +18,10 @@ if [ ! -d "$tree/.git" ]; then
 	git clone -q --depth 1 --branch "$tag" "$url" "$tree" ||
 		git clone -q --depth 1 --branch "$tag" "$mirror" "$tree"
 fi
+if [ -n "$(git -C "$tree" status --porcelain --untracked-files=no)" ]; then
+	echo "error: $tree has uncommitted changes; refusing to reset it" >&2
+	exit 1
+fi
 head=$(git -C "$tree" rev-parse "$tag^{commit}")
 if [ "$head" != "$commit" ]; then
 	echo "error: $tag resolves to $head, PIN says $commit" >&2

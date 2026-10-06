@@ -14,20 +14,25 @@ die() { echo "collect-info: $*" >&2; exit 1; }
 [ "$(adb get-state 2>/dev/null)" = recovery ] ||
 	die "phone not in recovery (TWRP) over adb; check 'adb devices'"
 
-dest=$HOME/note9-logs/$(date +%Y-%m-%d-%H%M)
+dest=$HOME/note9-logs/$(date +%Y-%m-%d-%H%M%S)
+[ ! -e "$dest" ] || die "$dest already exists"
 mkdir -p "$dest"
 cd "$dest"
 
 # What S-Boot really hands to a kernel: the device tree (with RAM layout and
 # command line), the RAM map, and the command line itself.
-adb exec-out 'cat /sys/firmware/fdt' > fdt.dtb
-adb exec-out 'cat /proc/iomem' > iomem.txt
-adb exec-out 'cat /proc/cmdline' > cmdline.txt
-adb exec-out 'cat /proc/cpuinfo' > cpuinfo.txt
-adb exec-out 'getprop' > getprop.txt
-adb exec-out 'dmesg' > dmesg.txt 2>/dev/null || true
-adb exec-out 'cat /proc/last_kmsg' > last_kmsg.txt 2>/dev/null || true
-adb exec-out 'ls -l /sys/fs/pstore' > pstore-list.txt 2>/dev/null || true
+# Each read is optional: one failure must not stop the rest.
+get() {
+	adb exec-out "$1" > "$2" 2>/dev/null || echo "warning: '$1' failed" >&2
+}
+get 'cat /sys/firmware/fdt' fdt.dtb
+get 'cat /proc/iomem' iomem.txt
+get 'cat /proc/cmdline' cmdline.txt
+get 'cat /proc/cpuinfo' cpuinfo.txt
+get 'getprop' getprop.txt
+get 'dmesg' dmesg.txt
+get 'cat /proc/last_kmsg' last_kmsg.txt
+get 'ls -l /sys/fs/pstore' pstore-list.txt
 
 ls -l
 echo "Saved to $dest"

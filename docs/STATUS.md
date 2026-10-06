@@ -4,12 +4,13 @@ Last updated: 2026-10-06 (session 1).
 
 ## Where things stand
 
-- Kernel pinned to **v7.3-rc6**. CI builds the arm64 kernel and the Note 9
-  device tree and runs all checks.
-- Device tree draft (`patches/`): screen (simplefb), buttons, RAM below 4 GiB,
-  reserved firmware regions. **Not verified on my Note 9.** It cannot boot
-  yet: there is no way to start it from S-Boot until the boot path is chosen
-  (below).
+- Kernel pinned to **v7.3-rc6**. CI builds the arm64 kernel; once the device
+  tree series is merged it also builds the Note 9 device tree and runs all
+  checks on it.
+- Device tree draft (PR #2, `patches/`): screen (simplefb), buttons, RAM
+  below 4 GiB, reserved firmware regions. **Not verified on my Note 9.** It
+  cannot boot yet: there is no way to start it from S-Boot until the boot
+  path is chosen (below).
 - Phone tools: `tools/flash-boot.sh` (the one door, BOOT/RECOVERY only),
   `tools/backup-partitions.sh` and `tools/collect-info.sh` (read-only).
 - Nothing has run on the phone yet.
