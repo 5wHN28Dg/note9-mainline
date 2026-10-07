@@ -104,7 +104,7 @@ message. Any such change must be mentioned in the session report.
   tagged release or -rc, recorded in `kernel/PIN`. Changes live as a patch
   series under `patches/`
   (`git format-patch --zero-commit --no-signature --base=<pin>`), made from a
-  working tree outside the repo (`~/note9-work/linux`). Moving to a newer
+  working tree outside the repo (`~/Projects/note9-work/linux`). Moving to a newer
   kernel is its own change.
 - **CI on every push and PR** (GitHub Actions, every action pinned to a
   commit SHA):
@@ -142,7 +142,7 @@ message. Any such change must be mentioned in the session report.
 - The README opens with a plain banner: AI-written, not reviewed by a human,
   don't flash it on your phone without understanding it.
 - Never commit backups, `*.img`/`*.bin` files, raw logs, IMEIs, serial
-  numbers or MAC addresses. Owner's logs go in `~/note9-logs` (outside the
+  numbers or MAC addresses. Owner's logs go in `~/Projects/note9-logs` (outside the
   repo); docs and PRs quote only cleaned-up excerpts.
 - No `sudo` and no system package changes. List what the owner should
   install; use a Python venv for things like dtschema.

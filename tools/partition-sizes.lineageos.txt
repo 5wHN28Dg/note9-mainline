@@ -1,0 +1,7 @@
+BOOT 57671680
+RECOVERY 68149248
+# Bytes. Fallback used by tools/flash-boot.sh until the backup measures the
+# real sizes into ~/note9-backups/partition-sizes.txt.
+# Source: LineageOS/android_device_samsung_universal9810-common, branch
+# lineage-17.1, BoardConfigCommon.mk:70-71
+# (BOARD_BOOTIMAGE_PARTITION_SIZE, BOARD_RECOVERYIMAGE_PARTITION_SIZE).

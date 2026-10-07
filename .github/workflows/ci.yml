@@ -1,0 +1,54 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      CROSS_COMPILE: aarch64-linux-gnu-
+    steps:
+      # Outside the workspace, without '..' (upload-artifact rejects it).
+      - name: Set paths
+        run: |
+          echo "TREE=$RUNNER_TEMP/linux" >> "$GITHUB_ENV"
+          echo "OUT=$RUNNER_TEMP/out" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc-aarch64-linux-gnu flex bison bc \
+            libssl-dev libelf-dev libyaml-dev
+          pip install dtschema==2026.9 yamllint==1.38.0 ply==3.11 GitPython==3.2.0
+
+      - name: Fetch pinned kernel and apply patches
+        run: scripts/prepare-tree.sh "$TREE"
+
+      - name: Build Image and crownlte DTB
+        run: scripts/build.sh "$TREE" "$OUT"
+
+      - name: Checks (Signed-off-by, checkpatch, dtbs_check, dt_binding_check)
+        run: scripts/check.sh "$TREE" "$OUT"
+
+      - name: Upload Image and DTB
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kernel-${{ github.sha }}
+          path: |
+            ${{ env.OUT }}/arch/arm64/boot/Image
+            ${{ env.OUT }}/arch/arm64/boot/dts/exynos/exynos9810-crownlte.dtb
+            ${{ env.OUT }}/.config
+          if-no-files-found: warn
+          retention-days: 14

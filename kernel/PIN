@@ -1,0 +1,5 @@
+# Upstream Linux pin. Changing this is its own PR (rebase patches/, rebuild, re-check).
+tag=v7.3-rc6
+commit=a90ee4305c4a5df72c11b31dacfdc76e00fcf78a
+url=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+mirror=https://github.com/torvalds/linux.git

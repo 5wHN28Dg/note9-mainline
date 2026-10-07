@@ -1,0 +1,17 @@
+# Never commit images, firmware, backups or raw logs (CLAUDE.md).
+*.img
+*.img.tar
+*.img.lz4
+*.bin
+*.tar
+*.tar.md5
+*.pit
+*.log
+*.emmc.win*
+Image
+Image.gz
+*.dtb
+/out/
+*.lz4
+*.zip
+*.md5
