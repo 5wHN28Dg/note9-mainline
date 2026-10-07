@@ -29,9 +29,9 @@ Needs an aarch64 cross compiler, plus `flex`, `bison`, `bc`, `libssl-dev`, and
 a Python venv with `dtschema` and `yamllint` for the checks.
 
 ```sh
-scripts/prepare-tree.sh ~/note9-work/ci-linux      # pinned kernel + patches
-CROSS_COMPILE=aarch64-linux-gnu- scripts/build.sh ~/note9-work/ci-linux ~/note9-work/out
-scripts/check.sh ~/note9-work/ci-linux ~/note9-work/out
+scripts/prepare-tree.sh ~/Projects/note9-work/ci-linux      # pinned kernel + patches
+CROSS_COMPILE=aarch64-linux-gnu- scripts/build.sh ~/Projects/note9-work/ci-linux ~/Projects/note9-work/out
+scripts/check.sh ~/Projects/note9-work/ci-linux ~/Projects/note9-work/out
 ```
 
 ## License

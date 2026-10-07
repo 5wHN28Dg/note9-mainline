@@ -36,9 +36,9 @@ Key combos (Note 9):
    `FRP LOCK`, and anything containing `RMM`.
 6. Still in download mode, save the partition table (this only reads):
    ```sh
-   mkdir -p ~/note9-backups ~/note9-logs
+   mkdir -p ~/note9-backups ~/Projects/note9-logs
    heimdall download-pit --output ~/note9-backups/note9.pit --no-reboot
-   heimdall print-pit --file ~/note9-backups/note9.pit > ~/note9-logs/pit.txt
+   heimdall print-pit --file ~/note9-backups/note9.pit > ~/Projects/note9-logs/pit.txt
    ```
 7. Leave download mode: forced restart (Volume Down + Power).
 
@@ -48,7 +48,7 @@ Flashing fails until it is `Normal`.
 
 **Send back:** the build number, baseband version, and the OEM LOCK /
 KG STATE / FRP LOCK lines (typed out, or a photo with the serial covered).
-Leave `pit.txt` in `~/note9-logs`.
+Leave `pit.txt` in `~/Projects/note9-logs`.
 
 ## Trip 2: unlock the bootloader (DESTRUCTIVE: wipes the phone)
 
@@ -70,11 +70,11 @@ is on the phone (that can brick it). Re-locking is only safe on full stock.
 ## Trip 3: TWRP into RECOVERY, then back up (destructive only to RECOVERY)
 
 1. In a browser, download `twrp-3.7.0_9-0-crownlte.img` from
-   https://twrp.me/samsung/samsunggalaxynote9.html into `~/note9-work/twrp/`
+   https://twrp.me/samsung/samsunggalaxynote9.html into `~/Projects/note9-work/twrp/`
    (the signature `.asc` and TeamWin's key `twrp-public.asc`, from
    https://dl.twrp.me/public.asc, are already there). Check it:
    ```sh
-   cd ~/note9-work/twrp
+   cd ~/Projects/note9-work/twrp
    sha256sum twrp-3.7.0_9-0-crownlte.img
    # must be 7ea8960e5c8df86f07c6d6b3f5b4ab6fa1c533cafd46cd4e2578d32867f154af
    gpg --import twrp-public.asc
@@ -86,7 +86,7 @@ is on the phone (that can brick it). Re-locking is only safe on full stock.
    else: stop.
 2. Download mode, then from the repo folder:
    ```sh
-   tools/flash-boot.sh recovery ~/note9-work/twrp/twrp-3.7.0_9-0-crownlte.img \
+   tools/flash-boot.sh recovery ~/Projects/note9-work/twrp/twrp-3.7.0_9-0-crownlte.img \
      --expect-sha256 7ea8960e5c8df86f07c6d6b3f5b4ab6fa1c533cafd46cd4e2578d32867f154af
    ```
    Type `RECOVERY` when asked.
@@ -113,7 +113,7 @@ is on the phone (that can brick it). Re-locking is only safe on full stock.
 
 **Undo:** to put stock recovery back, flash `recovery.img` from the stock
 firmware (step "Rescue" below) with `tools/flash-boot.sh recovery`.
-**Send back:** "done", plus the folder names. I read `~/note9-logs` myself
+**Send back:** "done", plus the folder names. I read `~/Projects/note9-logs` myself
 (including a check that the backup has every partition in `pit.txt` that it
 should).
 
