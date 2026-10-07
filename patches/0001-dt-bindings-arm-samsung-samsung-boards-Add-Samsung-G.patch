@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Hashim <109148083+5wHN28Dg@users.noreply.github.com>
+Date: Tue, 6 Oct 2026 22:16:59 +0300
+Subject: [PATCH 1/2] dt-bindings: arm: samsung: samsung-boards: Add Samsung
+ Galaxy Note9
+
+Add the compatible for the Exynos 9810 based Samsung Galaxy Note9
+(SM-N960F), codename crownlte.
+
+Assisted-by: LLM
+---
+ .../devicetree/bindings/arm/samsung/samsung-boards.yaml          | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml b/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
+index 273464400..4e4d27a4d 100644
+--- a/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
++++ b/Documentation/devicetree/bindings/arm/samsung/samsung-boards.yaml
+@@ -250,6 +250,7 @@ properties:
+       - description: Exynos9810 based boards
+         items:
+           - enum:
++              - samsung,crownlte                # Samsung Galaxy Note9 (SM-N960F)
+               - samsung,starlte                 # Samsung Galaxy S9 (SM-G960F)
+           - const: samsung,exynos9810
+ 
